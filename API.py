@@ -8,6 +8,15 @@ app = Flask(__name__)
 def get_incidentes():
     return jsonify(incidentes)
 
+# Ruta GET para obtener un incidente específico por ID
+@app.route('/incidentes/<string:id>', methods=['GET'])
+def get_incidente(id):
+    for incidente in incidentes:
+        if incidente['id'] == id:  # Buscamos el incidente por su ID
+            return jsonify(incidente), 200
+    
+    return jsonify({'error': 'Incidente no encontrado'}), 404
+
 # Ruta POST para crear un nuevo incidente
 @app.route('/incidentes', methods=['POST'])
 def create_incidente():
@@ -31,6 +40,14 @@ def update_incidente(id):
             return jsonify(incidente), 200
     
     return jsonify({'error': 'Incidente no encontrado'}), 404
+
+# Ruta DELETE para eliminar un incidente por ID
+@app.route('/incidentes/<string:id>', methods=['DELETE'])
+def delete_incidente(id):
+    global incidentes
+    incidentes = [incidente for incidente in incidentes if incidente['id'] != id]
+    
+    return jsonify({'message': 'Incidente eliminado exitosamente'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=4000, use_reloader=True)
