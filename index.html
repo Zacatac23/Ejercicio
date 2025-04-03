@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API de Incidentes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            box-shadow: var(--box-shadow);
+        }
+        
+        h1, h2, h3, h4 {
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+        
+        header h1 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-weight: 300;
+            opacity: 0.9;
+        }
+        
+        .api-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+        
+        .api-section-header {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .api-section-content {
+            padding: 1.5rem;
+        }
+        
+        .endpoint {
+            margin-bottom: 2.5rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+        
+        .endpoint:last-child {
+            margin-bottom: 0;
+        }
+        
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .method {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-right: 1rem;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .get {
+            background-color: #61affe;
+            color: white;
+        }
+        
+        .post {
+            background-color: #49cc90;
+            color: white;
+        }
+        
+        .put {
+            background-color: #fca130;
+            color: white;
+        }
+        
+        .delete {
+            background-color: #f93e3e;
+            color: white;
+        }
+        
+        .endpoint-path {
+            font-family: monospace;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        .endpoint-content {
+            padding: 1.5rem;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        
+        .tab.active {
+            border-bottom: 2px solid var(--primary-color);
+            opacity: 1;
+            font-weight: 500;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 1.5rem 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        pre {
+            background-color: #272822;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            position: relative;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 500;
+        }
+        
+        .required {
+            color: #f93e3e;
+            margin-left: 0.25rem;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-left: 0.5rem;
+        }
+        
+        .status-success {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+        
+        .status-error {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+        
+        .footer {
+            margin-top: 3rem;
+            text-align: center;
+            padding: 2rem 0;
+            color: #777;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .endpoint-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .method {
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-code"></i> API de Incidentes</h1>
+            <p class="subtitle">Documentación completa para gestionar incidentes</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="api-section">
+            <div class="api-section-header">
+                <h2><i class="fas fa-server"></i> Endpoints disponibles</h2>
+                <span>v1.0</span>
+            </div>
+            <div class="api-section-content">
+                <p>Esta API permite gestionar incidentes a través de operaciones CRUD. Utiliza formato JSON para el intercambio de datos.</p>
+                
+                <!-- GET -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/incidentes</span>
+                    </div>
+                    <div class="endpoint-content">
+                        <h3>Obtener todos los incidentes</h3>
+                        <p>Devuelve una lista de todos los incidentes disponibles en el sistema.</p>
+                        
+                        <div class="tabs">
+                            <div class="tab active" onclick="changeTab(this, 'get-response')">Respuesta</div>
+                            <div class="tab" onclick="changeTab(this, 'get-params')">Parámetros</div>
+                        </div>
+                        
+                        <div id="get-response" class="tab-content active">
+                            <pre><button class="copy-btn">Copiar</button>
+[
+  {
+    "id": 1,
+    "name": "Incidente 1",
+    "reporte": "Descripción del incidente",
+    "status": "Abierto",
+    "fecha": "2024-04-03"
+  },
+  {
+    "id": 2,
+    "name": "Incidente 2",
+    "reporte": "Otro incidente reportado",
+    "status": "En progreso",
+    "fecha": "2024-04-04"
+  }
+]</pre>
+                            <div class="status status-success">200 OK</div>
+                        </div>
+                        
+                        <div id="get-params" class="tab-content">
+                            <h4>Parámetros de consulta opcionales</h4>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th>Descripción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>status</td>
+                                        <td>string</td>
+                                        <td>Filtrar por estado (Abierto, En progreso, Cerrado)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>fecha_desde</td>
+                                        <td>string (YYYY-MM-DD)</td>
+                                        <td>Filtrar desde una fecha específica</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- POST -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/incidentes</span>
+                    </div>
+                    <div class="endpoint-content">
+                        <h3>Crear un nuevo incidente</h3>
+                        <p>Crea un nuevo registro de incidente en el sistema.</p>
+                        
+                        <div class="tabs">
+                            <div class="tab active" onclick="changeTab(this, 'post-request')">Solicitud</div>
+                            <div class="tab" onclick="changeTab(this, 'post-response')">Respuesta</div>
+                        </div>
+                        
+                        <div id="post-request" class="tab-content active">
+                            <h4>Body (JSON)</h4>
+                            <pre><button class="copy-btn">Copiar</button>
+{
+  "name": "Incidente 2",
+  "reporte": "Otro reporte",
+  "status": "En progreso",
+  "fecha": "2024-04-04"
+}</pre>
+
+                            <h4>Campos requeridos</h4>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Campo</th>
+                                        <th>Tipo</th>
+                                        <th>Descripción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>name<span class="required">*</span></td>
+                                        <td>string</td>
+                                        <td>Nombre identificativo del incidente</td>
+                                    </tr>
+                                    <tr>
+                                        <td>reporte<span class="required">*</span></td>
+                                        <td>string</td>
+                                        <td>Descripción detallada del incidente</td>
+                                    </tr>
+                                    <tr>
+                                        <td>status</td>
+                                        <td>string</td>
+                                        <td>Estado del incidente (Abierto, En progreso, Cerrado)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>fecha</td>
+                                        <td>string (YYYY-MM-DD)</td>
+                                        <td>Fecha de registro del incidente</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div id="post-response" class="tab-content">
+                            <pre><button class="copy-btn">Copiar</button>
+{
+  "message": "Incidente creado",
+  "id": 3
+}</pre>
+                            <div class="status status-success">201 Created</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- PUT -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method put">PUT</span>
+                        <span class="endpoint-path">/incidentes/{id}</span>
+                    </div>
+                    <div class="endpoint-content">
+                        <h3>Actualizar un incidente por ID</h3>
+                        <p>Actualiza un incidente existente identificado por su ID.</p>
+                        
+                        <div class="tabs">
+                            <div class="tab active" onclick="changeTab(this, 'put-request')">Solicitud</div>
+                            <div class="tab" onclick="changeTab(this, 'put-response')">Respuesta</div>
+                            <div class="tab" onclick="changeTab(this, 'put-error')">Errores</div>
+                        </div>
+                        
+                        <div id="put-request" class="tab-content active">
+                            <h4>Parámetros de ruta</h4>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Parámetro</th>
+                                        <th>Descripción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>id<span class="required">*</span></td>
+                                        <td>ID numérico del incidente a actualizar</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <h4>Body (JSON)</h4>
+                            <pre><button class="copy-btn">Copiar</button>
+{
+  "name": "Nuevo nombre",
+  "reporte": "Nuevo reporte",
+  "status": "Cerrado",
+  "fecha": "2024-04-05"
+}</pre>
+                        </div>
+                        
+                        <div id="put-response" class="tab-content">
+                            <pre><button class="copy-btn">Copiar</button>
+{
+  "message": "Incidente actualizado",
+  "id": 1
+}</pre>
+                            <div class="status status-success">200 OK</div>
+                        </div>
+                        
+                        <div id="put-error" class="tab-content">
+                            <pre><button class="copy-btn">Copiar</button>
+{
+  "error": "No se encontró el incidente con ID 999"
+}</pre>
+                            <div class="status status-error">404 Not Found</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- DELETE -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method delete">DELETE</span>
+                        <span class="endpoint-path">/incidentes/{id}</span>
+                    </div>
+                    <div class="endpoint-content">
+                        <h3>Eliminar un incidente por ID</h3>
+                        <p>Elimina permanentemente un incidente del sistema.</p>
+                        
+                        <div class="tabs">
+                            <div class="tab active" onclick="changeTab(this, 'delete-params')">Parámetros</div>
+                            <div class="tab" onclick="changeTab(this, 'delete-response')">Respuesta</div>
+                            <div class="tab" onclick="changeTab(this, 'delete-error')">Errores</div>
+                        </div>
+                        
+                        <div id="delete-params" class="tab-content active">
+                            <h4>Parámetros de ruta</h4>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Parámetro</th>
+                                        <th>Descripción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>id<span class="required">*</span></td>
+                                        <td>ID numérico del incidente a eliminar</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div id="delete-response" class="tab-content">
+                            <pre><button class="copy-btn">Copiar</button>
+{
+  "message": "Incidente eliminado"
+}</pre>
+                            <div class="status status-success">200 OK</div>
+                        </div>
+                        
+                        <div id="delete-error" class="tab-content">
+                            <pre><button class="copy-btn">Copiar</button>
+{
+  "error": "No se encontró el incidente con ID 999"
+}</pre>
+                            <div class="status status-error">404 Not Found</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>API de Incidentes &copy; 2024 | Versión 1.0</p>
+        </div>
+    </footer>
+    
+    <script>
+        function changeTab(element, tabId) {
+            // Remove active class from all tabs in the same group
+            const parent = element.parentElement;
+            const tabs = parent.getElementsByClassName('tab');
+            for (let tab of tabs) {
+                tab.classList.remove('active');
+            }
+            
+            // Add active class to clicked tab
+            element.classList.add('active');
+            
+            // Hide all tab contents in the same section
+            const container = parent.parentElement;
+            const contents = container.getElementsByClassName('tab-content');
+            for (let content of contents) {
+                content.classList.remove('active');
+            }
+            
+            // Show the selected tab content
+            document.getElementById(tabId).classList.add('active');
+        }
+        
+        // Copy button functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            
+            copyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const pre = this.parentElement;
+                    const code = pre.textContent.replace('Copiar', '').trim();
+                    
+                    navigator.clipboard.writeText(code).then(() => {
+                        const originalText = this.textContent;
+                        this.textContent = 'Copiado!';
+                        
+                        setTimeout(() => {
+                            this.textContent = originalText;
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
